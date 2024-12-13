@@ -35,23 +35,18 @@ class DinoClass extends JPanel implements ActionListener, KeyListener{        //
     int panWidth = 1000;
     int panHeight = 500;
     
-    //names of graphic objects//
-    Rectangle dinoGraph, dinoDead, dinoJump, cactus1, cactus2, cactus3;
-    
     //make class for all aspecets of rectanle: position//
     class Block{
         int x;
         int y;
         int width;
         int height;
-        Rectangle rect;
         
-        Block(int x, int y, int width, int height, Rectangle rect){
+        Block(int x, int y, int width, int height){
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
-            this.rect = rect;
         }
     }
     
@@ -69,7 +64,7 @@ class DinoClass extends JPanel implements ActionListener, KeyListener{        //
     int cactusWidth03 = 102;
     
     int cactusHeight = 70;
-    int cactusX = 700;
+    int cactusX = panWidth;
     int cactusY = panHeight-cactusHeight;
     ArrayList<Block> cactusArray;
     
@@ -92,19 +87,12 @@ class DinoClass extends JPanel implements ActionListener, KeyListener{        //
     public DinoClass(){
         //re-define window size and set its color//
         setPreferredSize(new Dimension(panWidth, panHeight));
-        setBackground(Color.lightGray);
+        setBackground(Color.white);
         setFocusable(true);
         addKeyListener(this);
         
-        dinoGraph = new Rectangle(50, 100, 100, 100);
-        dinoDead = new Rectangle(100, 50, 100, 100);
-        dinoJump = new Rectangle(50, 100, 100, 100);
-        cactus1 = new Rectangle(200, 50, 50, 50);
-        cactus2 = new Rectangle(100, 50, 50, 50);
-        cactus3 = new Rectangle(50, 50, 50, 50);
-        
         //make dinosaur in screen//
-        dinoBlock = new Block(dinoX, dinoY, dinoWidth, dinoHeight, dinoGraph);  //now we can keep track of xy positions//
+        dinoBlock = new Block(dinoX, dinoY, dinoWidth, dinoHeight);  //now we can keep track of xy positions//
         //create timer game loop//
         gameLoop = new Timer(1000/60, this); //calls action every 16.6 milliseconds//
         gameLoop.start();
@@ -130,13 +118,13 @@ class DinoClass extends JPanel implements ActionListener, KeyListener{        //
         //make chances for different cacti//
         double placeCactusChance = Math.random();
         if(placeCactusChance > 0.9){    //10% chance//
-            Block cactusBlock = new Block(cactusX, cactusY, cactusWidth03, cactusHeight, cactus3);
+            Block cactusBlock = new Block(cactusX, cactusY, cactusWidth03, cactusHeight);
             cactusArray.add(cactusBlock);
         }else if(placeCactusChance > 0.7){      //20% chance//
-            Block cactusBlock = new Block(cactusX, cactusY, cactusWidth02, cactusHeight, cactus2);
+            Block cactusBlock = new Block(cactusX, cactusY, cactusWidth02, cactusHeight);
             cactusArray.add(cactusBlock);
         }else if(placeCactusChance > 0.5){      //20% chance//
-            Block cactusBlock = new Block(cactusX, cactusY, cactusWidth01, cactusHeight, cactus1);
+            Block cactusBlock = new Block(cactusX, cactusY, cactusWidth01, cactusHeight);
             cactusArray.add(cactusBlock);
         }
     }
@@ -147,12 +135,14 @@ class DinoClass extends JPanel implements ActionListener, KeyListener{        //
         draw(g);
     }
     public void draw(Graphics g){
-        g.drawRect(dinoBlock.x, dinoBlock.y, dinoBlock.width, dinoBlock.height);
+        g.setColor(Color.green);
+        g.fillRect(dinoBlock.x, dinoBlock.y, dinoBlock.width, dinoBlock.height);
         
         //cactus//
         for(int i=0; i<cactusArray.size(); i++){
             Block cactusBlock = cactusArray.get(i);
-            g.drawRect(cactusBlock.x, cactusBlock.y, cactusBlock.width, cactusBlock.height);
+            g.setColor(Color.RED);
+            g.fillRect(cactusBlock.x, cactusBlock.y, cactusBlock.width, cactusBlock.height);
         }
         
         //draw score//
@@ -241,3 +231,4 @@ class DinoClass extends JPanel implements ActionListener, KeyListener{        //
     public void keyTyped(KeyEvent e) {}
     @Override
     public void keyReleased(KeyEvent e) {}
+}
