@@ -1,0 +1,84 @@
+//includ libraries//
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <ZMPT101B.h>
+
+
+#define SENSITIVITY 500.0f
+// ZMPT101B sensor output connected to analog pin A0
+// and the voltage source frequency is 50 Hz.
+ZMPT101B voltageSensor(A0, 50.0);
+
+float correctionfactor=6.5;
+float Current_Value = 0;
+const int ACPin = A1;         //set arduino signal read pin
+
+//set Non-invasive AC Current Sensor tection range (5A,10A,20A)
+#define ACTectionRange 20;    
+#define VREF 5
+char watt[5];
+unsigned long last_time =0;
+unsigned long current_time =0;
+float Wh =0 ;  
+
+void setup() {
+  
+  Serial.begin(9600);
+  //pinMode(voltageSensor,INPUT);
+  pinMode(ACPin,INPUT);
+  voltageSensor.setSensitivity(SENSITIVITY);
+  
+
+  //display info on terminal//
+  delay(2000);
+  Serial.println("I work!");
+}
+
+void loop() {
+  float ACcurrent=0;
+  float current_value = readACCurrentValue();
+  ACcurrent=current_value;
+  //Serial.print(current_value);
+  //    Serial.println(" A");
+  //    current += current_value;
+  delay(1000);
+  
+  //Serial.print(ACcurrent);
+  //Serial.println("Current: ");
+  
+  float acvoltage = voltageSensor.getRmsVoltage();
+  //Serial.println(acvoltage);
+  
+  float P = acvoltage * ACcurrent;
+  last_time = current_time;
+  current_time = millis();    
+  Wh = Wh+  P *(( current_time -last_time) /3600000.0) ; 
+  dtostrf(Wh, 4, 2, watt);        
+  //Serial.write(watt);
+
+  //Display as if on a screen//
+  Serial.println("V:"+String(acvoltage)+"\t I:"+String(ACcurrent)+"\t P:"+String(P));
+}
+
+
+float readACCurrentValue(){
+  float ACCurrtntValue = 0;
+  float peakVoltage = 0;
+  float voltageVirtualValue = 0;  //Vrms
+  for (int i = 0; i < 5; i++){
+    peakVoltage += analogRead(ACPin);   //read peak voltage
+    peakVoltage = peakVoltage + correctionfactor;
+    delay(1);
+  }
+  peakVoltage = peakVoltage / 5;
+  voltageVirtualValue = peakVoltage * 0.707;    //change the peak voltage to the Virtual Value of voltage
+ 
+  /*The circuit is amplified by 2 times, so it is divided by 2.*/
+  voltageVirtualValue = (voltageVirtualValue / 1024 * VREF ) / 2;
+ 
+  ACCurrtntValue = voltageVirtualValue * ACTectionRange;
+ 
+  return ACCurrtntValue;
+}
